@@ -1,3 +1,5 @@
+import functools
+
 from flask import Blueprint, url_for, render_template, flash, request, session, g
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import redirect
@@ -60,3 +62,12 @@ def logout_professor():
     ''' 교수 로그아웃 '''
     session.clear()
     return redirect(url_for('auth.login_professor'))
+
+def login_required(view):
+    ''' 로그인 여부 확인 데코레이터 '''
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            return redirect(url_for('auth.login_professor'))
+        return view(**kwargs)
+    return wrapped_view
